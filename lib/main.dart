@@ -5,7 +5,11 @@ extension Log on Object {
   void log() => devtools.log(toString());
 }
 
-mixin CanRun {
+abstract class Animal {
+  const Animal();
+}
+
+mixin CanRun on Animal {
   int get speed;
 
   void run() {
@@ -13,9 +17,25 @@ mixin CanRun {
   }
 }
 
+/*
+'CanRun' can't be mixed onto 'Object' because 'Object' doesn't implement 'Animal'.
+
 class Cat with CanRun {
   @override
   int speed = 10;
+}
+
+ */
+
+class Cat extends Animal with CanRun {
+  @override
+  int speed = 10;
+}
+
+class Dog with CanRun{
+  @override
+  // TODO: implement speed
+  int get speed => throw UnimplementedError();
 }
 
 void testIt() {
