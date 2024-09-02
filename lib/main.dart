@@ -1,48 +1,38 @@
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
+import 'dart:io';
+import 'package:meta/meta.dart';
+import 'dart:convert';
 
 extension Log on Object {
   void log() => devtools.log(toString());
 }
 
-abstract class Animal {
-  const Animal();
+extension GetOnUri on Object {
+  Future<HttpClientResponse> getUrl(String url) =>
+      HttpClient().getUrl(Uri.parse(url)).then((req) => req.close());
 }
 
-mixin CanRun on Animal {
-  int get speed;
+mixin CanMakeGetCall {
+  String get url;
 
-  void run() {
-    'Running at the speed of $speed'.log();
-  }
+  @useResult
+  Future<String> getString() =>
+      getUrl(url).then((resp) => resp.transform(utf8.decoder).join());
 }
 
-/*
-'CanRun' can't be mixed onto 'Object' because 'Object' doesn't implement 'Animal'.
+@immutable
+class GetPeople with CanMakeGetCall{
+  const GetPeople();
 
-class Cat with CanRun {
   @override
-  int speed = 10;
+  String get url => 'http://127.0.0.1:5500/apis/people.json';
+  
 }
 
- */
-
-class Cat extends Animal with CanRun {
-  @override
-  int speed = 10;
-}
-
-class Dog with CanRun{
-  @override
-  // TODO: implement speed
-  int get speed => throw UnimplementedError();
-}
-
-void testIt() {
-  final cat = Cat();
-  cat.run();
-  cat.speed = 20;
-  cat.run();
+void testIt() async{
+  final people = await const GetPeople().getString();
+  people.log();
 }
 
 void main() {
